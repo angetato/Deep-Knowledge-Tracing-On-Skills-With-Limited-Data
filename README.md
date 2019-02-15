@@ -1,5 +1,23 @@
 # DKT-on-Extreme-Skills
-Deep Knowledge Tracing on knowledge very difficult and easy to master
+Deep Knowledge Tracing On Skills With Limited Data
 
 ## Abstract
-Deep Knowledge Tracing (DKT),  along with other machine learning approaches, is biased toward  data  they  have  seen during training. Thus for problems where we have few amount of data for a certain class, the models will tend to give good results on classes where there are many examples and  less good results on those classes with few examples.  This problem occur generally when the classes to predict are imbalanced and this is frequent in educational data where for  example,  there  are  skills  that  are very difficult  or very easy to  master (we call them extreme skills). There  will  be less data regarding students that correctly answered questions related to difficult knowledge and that incorrectly answered knowledge easy to master.  In that case, DKT is unable to correctly predict the knowledge of a student on extreme skills.  In order to improve DKT in that sense, we borrowed a solution from imbalanced problems which is the penalization of the model.  In other words, we have augmented the loss function with the same loss where we have masked non-extreme skills.  We also included in the DKT, a bayesian network (built from domain experts) by using the attention mechanism. The resulting model is able to accurately track knowledge of students in Logic-Muse Intelligent Tutoring System (ITS), compare to the BKT or the original DKT.
+Deep Knowledge Tracing (DKT), along with other machine
+learning approaches, are biased toward data they have seen during the
+training  step.  Thus  for  problems  where  we  have  few  amount  of  data
+for a certain class, the models will tend to give good results on classes
+where  there  are  many  examples,  and  poor  results  on  those  with  few
+examples. This problem generally occurs when the classes to predict are
+imbalanced and this is frequent in educational data where for example,
+there  are  skills  that  are  very  difficult  or  very  easy  to  master.  There
+will be less data on students that correctly answered questions related
+to difficult knowledge and that incorrectly answered knowledge easy to
+master.  In  that  case,  DKT  is  unable  to  correctly  predict  the  current
+student’s  knowledge  on  those  skills.  In  order  to  improve  DKT  in  that
+sense, we penalized the model using a cost-sensitive technique. In other
+words, we have augmented the loss function with the same loss where
+we have masked certain skills. We also included in the DKT, a Bayesian
+Network (built from domain experts) by using the attention mechanism.
+The resulting model is able to accurately track knowledge of students in
+Logic-Muse Intelligent Tutoring System (ITS), compare to the BKT or
+the original DKT

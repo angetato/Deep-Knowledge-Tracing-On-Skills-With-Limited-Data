@@ -1,5 +1,4 @@
-# DKT-on-Extreme-Skills
-Deep Knowledge Tracing On Skills With Limited Data
+# Deep Knowledge Tracing On Skills With Limited Data
 
 ## Abstract
 Deep Knowledge Tracing (DKT), along with other machine

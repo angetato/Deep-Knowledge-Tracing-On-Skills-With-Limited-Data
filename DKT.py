@@ -1,5 +1,5 @@
 import numpy as np
-import pandas as pd 
+import pandas as pd
 from sklearn.metrics import roc_auc_score
 import tensorflow as tf
 import keras
@@ -51,11 +51,11 @@ wordsList = [word.decode('UTF-8') for word in wordsList] #Encode words as UTF-8
 wordVectors = np.load('wordVectors.npy')
 print ('Loaded the word vectors!')  """
 
-lstm_out = 17
-batchSize = 200
-look_back = 46
-inputsize = 32
-skills = 16
+lstm_out = 17 # nombre de noeuds dans la "output layer"
+batchSize = 20 # taille des lots de données
+look_back = 46 # nombre de noeuds dans la "hidden layer"
+inputsize = 32 # nombre de noeuds dans la "input layer"
+skills = 16 # nb des différentes compétences évaluées chez les élèves
 
 def prepross (xs):
         result = []
@@ -63,11 +63,12 @@ def prepross (xs):
                 xt_zeros = [0 for i in range(0, skills *2)]
                 skill = np.argmax(x)
                 a = x[-1]
-                pos = skill * 2 + int(x[-1])
+                pos = skill * 2 + int(a)
                 xt = xt_zeros[:]
                 xt[pos] = 1
                 result.append(xt)
         return np.array(result)
+
 # convert an array of values into a dataset matrix
 def create_dataset(dataset, choix, look_back=1):
     dataX, dataY = [], []
@@ -112,30 +113,41 @@ def loss_function(y_true, y_pred):
         # keras implementation does a mean on the last dimension (axis=-1) which
         # it assumes is a singleton dimension. But in our context that would
         # be wrong.
-        #+ 10*K.binary_crossentropy(rep5,(temp[:,:,5])) + 10*( K.binary_crossentropy(rep4, (temp[:,:,4]))  + K.binary_crossentropy(rep6, (temp[:,:,6]))  + K.binary_crossentropy(rep7, (temp[:,:,7]))  + K.binary_crossentropy(rep10, (temp[:,:,10]))  + K.binary_crossentropy(rep11, (temp[:,:,11]))  + K.binary_crossentropy(rep14, (temp[:,:,14]))  + K.binary_crossentropy(rep15, (temp[:,:,15])) ) 
-        return  K.binary_crossentropy(rel_pred, obs) + 10*(tf.where(mask4, K.binary_crossentropy(rel_pred, obs), tf.zeros_like(rep4)) + tf.where(mask5, K.binary_crossentropy(rel_pred, obs), tf.zeros_like(rep4)) + tf.where(mask6, K.binary_crossentropy(rel_pred, obs), tf.zeros_like(rep4))+ tf.where(mask7, K.binary_crossentropy(rel_pred, obs), tf.zeros_like(rep4))+tf.where(mask10, K.binary_crossentropy(rel_pred, obs), tf.zeros_like(rep4))+tf.where(mask11, K.binary_crossentropy(rel_pred, obs), tf.zeros_like(rep4))+tf.where(mask14, K.binary_crossentropy(rel_pred, obs), tf.zeros_like(rep4))+tf.where(mask15, K.binary_crossentropy(rel_pred, obs), tf.zeros_like(rep4))  )  
+        #+ 10*K.binary_crossentropy(rep5,(temp[:,:,5])) + 10*( K.binary_crossentropy(rep4, (temp[:,:,4]))  + K.binary_crossentropy(rep6, (temp[:,:,6]))  + K.binary_crossentropy(rep7, (temp[:,:,7]))  + K.binary_crossentropy(rep10, (temp[:,:,10]))  + K.binary_crossentropy(rep11, (temp[:,:,11]))  + K.binary_crossentropy(rep14, (temp[:,:,14]))  + K.binary_crossentropy(rep15, (temp[:,:,15])) )
+        return  K.binary_crossentropy(rel_pred, obs) + 10*(tf.where(mask4, K.binary_crossentropy(rel_pred, obs),\
+                                                           tf.zeros_like(rep4)) + tf.where(mask5, K.binary_crossentropy(rel_pred, obs), \
+                                                                        tf.zeros_like(rep4)) + tf.where(mask6, K.binary_crossentropy(rel_pred, obs), \
+                                                                                     tf.zeros_like(rep4))+ tf.where(mask7, K.binary_crossentropy(rel_pred, obs), \
+                                                                                                  tf.zeros_like(rep4))+tf.where(mask10, K.binary_crossentropy(rel_pred, obs),\
+                                                                                                               tf.zeros_like(rep4))+tf.where(mask11, K.binary_crossentropy(rel_pred, obs),\
+                                                                                                                            tf.zeros_like(rep4))+tf.where(mask14, K.binary_crossentropy(rel_pred, obs),\
+                                                                                                                                         tf.zeros_like(rep4))+tf.where(mask15, K.binary_crossentropy(rel_pred, obs),\
+                                                                                                                                                      tf.zeros_like(rep4)))
 
 def accur(y_true, y_pred):
-
         temp = y_true[:,:,0:-1]  * y_pred
         rel_pred = K.sum(temp, axis=2)
         return K.mean(K.equal(K.round(rel_pred), y_true[:,:,-1]))
 
+
+
 df = pd.read_csv('bn_data.csv')
 bn = (df.values)[:,1:]
 bn = np.array([np.array([ y[1:-2].split(', ') for y in x ]) for x in bn])
-print(bn.shape)
+print("bn : ", bn.shape)
+print(bn[293])
 df = pd.read_csv('rawData_kn.csv')
 data = (df.values)[:,1:]
 data = np.array([np.array([  y[1:-1].split(', ') for y in x ]) for x in data])
-print(data.shape)
+print("data : ",data.shape)
+print(data[293])
 new_data =[]
 for i in range(len(data)):
         inds = [i for i in range(len(data[i]))]
         shuffle(inds)
         new_data.append(data[i,inds])
 data = np.array(new_data)
-print(data.shape) 
+print(data.shape)
 
 
 X_bn, Y_bn = create_dataset(bn, False, look_back )
@@ -144,6 +156,7 @@ X_data, Y_data = create_dataset(data, True, look_back )
 X = np.concatenate((X_data,X_bn), axis=-1)
 
 print("taille des données = {}".format(X.shape))
+print(X[0])
 
 ind_list = [i for i in range(len(X))]
 shuffle(ind_list)
@@ -177,8 +190,8 @@ x = lstm_layer(comment_input)
 expert_input = Input(shape=(look_back,16,), dtype='float32')
 #merged = atte.AttentionE(16)([x,expert_input])
 preds =  TimeDistributed(Dense(16, activation='sigmoid'))(x)
-    
-model = Model(inputs=[comment_input,expert_input], 
+
+model = Model(inputs=[comment_input,expert_input],
         outputs=preds)
 model.compile(loss= loss_function,
         optimizer='adam',
@@ -189,7 +202,7 @@ print(model.summary())
 
 #callbacks = [ PlotLossesKeras()]
 
-history = model.fit([X_train,X_expert_train], Y_train,  validation_data=([X_val,X_expert_val], Y_val),epochs = 20, batch_size=batchSize)
+history = model.fit([X_train,X_expert_train], Y_train,  validation_data=([X_val,X_expert_val], Y_val),epochs = 500, batch_size=batchSize)
 
 
 scores = model.evaluate([X_test,X_expert_test], Y_test, verbose=1)
@@ -208,6 +221,8 @@ print(Y_test[:,1,4])
 print(Y_test[:,0,4])
 print(Y_test.shape)
 
+
+
 """ for (i,j) in zip (testPredict[0:1,0:10,:], Y_test[0:1,0:10,:]):
     print("{} - {}".format(i,j))  """
 
@@ -215,13 +230,11 @@ print(Y_test.shape)
 np.save('y_test.npy',Y_test[0:1,:,:]) """
 
 """ df = pd.DataFrame(testPredict[1])
-df.to_csv('testPredict4.csv') 
+df.to_csv('testPredict4.csv')
 df = pd.DataFrame(Y_test[1])
-df.to_csv('y_test4.csv') 
+df.to_csv('y_test4.csv')
 
 df = pd.DataFrame(testPredict[2])
-df.to_csv('testPredict5.csv') 
+df.to_csv('testPredict5.csv')
 df = pd.DataFrame(Y_test[2])
 df.to_csv('y_test5.csv')   """
-  
-

@@ -196,8 +196,8 @@ model.compile(loss= loss_function,
         optimizer='adam',
         metrics=[accur])
 #print(model.summary())
-#initial_weights = model.get_weights()
-#model.save_weights('initial_weights.h5')
+initial_weights = model.get_weights()
+model.save_weights('initial_weights.h5')
 model.load_weights('initial_weights.h5')
 
 

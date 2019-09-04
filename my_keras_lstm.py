@@ -143,86 +143,84 @@ print(X_test.shape,Y_test.shape)
 
 if args.run_opt == 1:
 
-    for a,b,c,d,e in ([10, 10, 10, 10, 10],[30, 0, 0, 0, 0],[10,0,0,0,0],[0, 30, 30, 30, 30],[0, 10, 10, 10, 10]):
-
-        #define model
-        
-        lstm_layer = LSTM(81, batch_input_shape=(batchSize, look_back, inputsize), return_sequences=True)
-        comment_input = Input(shape=(look_back,inputsize,),dtype='float32')
-        x = lstm_layer(comment_input)
-        preds =  TimeDistributed(Dense(81, activation='sigmoid'))(x)
-        model = Model(inputs=comment_input,outputs=preds)
-        model.compile(loss= loss_function, optimizer='adam', metrics=[accur])    
-        print(model.summary())
-        
-        
-        checkpointer = ModelCheckpoint(filepath=data_path + '/model-{epoch:02d}.hdf5', verbose=1)
-        num_epochs = 50
-    
-        history = model.fit(X_train, Y_train,  validation_data=(X_val, Y_val), epochs = num_epochs, batch_size=batchSize)
-        #callbacks=[checkpointer]
-        
-        model.save(data_path + "/final_model_DKT_mask_22" + str(a) + "_25" + str(b) + "_29" + str(c) + "_31" + str(d) + "_71" + str(e) + ".hdf5")
-        
-        scores = model.evaluate(X_test, Y_test, verbose=1)
-        print('Test loss:', scores[0])
-        print('Test accuracy:', scores[1])
-    
-        #save results
-        res = [("test loss","test accuracy","learning loss","learning accuracy","validation loss","validation accuracy","22 a","25 b","29 c","31 d","71 e")]
-        #res=[]
-        res.append((scores[0],scores[1],history.history.get('loss')[-1],history.history.get('accur')[-1],history.history.get('val_loss')[-1],history.history.get('val_accur')[-1],a,b,c,d,e))
-    
-        #write results
-        with open('resultats_DKT_masque.csv', "a") as csv_file:
-            writer = csv.writer(csv_file, delimiter=',')
-            for line in res:
-                writer.writerow(line)
+#    for a,b,c,d,e in ([10, 10, 10, 10, 10],[30, 0, 0, 0, 0],[10,0,0,0,0],[0, 30, 30, 30, 30],[0, 10, 10, 10, 10]):
+#
+#        #define model
+#        
+#        lstm_layer = LSTM(81, batch_input_shape=(batchSize, look_back, inputsize), return_sequences=True)
+#        comment_input = Input(shape=(look_back,inputsize,),dtype='float32')
+#        x = lstm_layer(comment_input)
+#        preds =  TimeDistributed(Dense(81, activation='sigmoid'))(x)
+#        model = Model(inputs=comment_input,outputs=preds)
+#        model.compile(loss= loss_function, optimizer='adam', metrics=[accur])    
+#        print(model.summary())
+#        
+#        
+#        checkpointer = ModelCheckpoint(filepath=data_path + '/model-{epoch:02d}.hdf5', verbose=1)
+#        num_epochs = 50
+#    
+#        history = model.fit(X_train, Y_train,  validation_data=(X_val, Y_val), epochs = num_epochs, batch_size=batchSize)
+#        #callbacks=[checkpointer]
+#        
+#        model.save(data_path + "/final_model_DKT_mask_22" + str(a) + "_25" + str(b) + "_29" + str(c) + "_31" + str(d) + "_71" + str(e) + ".hdf5")
+#        
+#        scores = model.evaluate(X_test, Y_test, verbose=1)
+#        print('Test loss:', scores[0])
+#        print('Test accuracy:', scores[1])
+#    
+#        #save results
+#        res = [("test loss","test accuracy","learning loss","learning accuracy","validation loss","validation accuracy","22 a","25 b","29 c","31 d","71 e")]
+#        #res=[]
+#        res.append((scores[0],scores[1],history.history.get('loss')[-1],history.history.get('accur')[-1],history.history.get('val_loss')[-1],history.history.get('val_accur')[-1],a,b,c,d,e))
+#    
+#        #write results
+#        with open('resultats_DKT_masque.csv', "a") as csv_file:
+#            writer = csv.writer(csv_file, delimiter=',')
+#            for line in res:
+#                writer.writerow(line)
                 
         #reset_keras()
     
-#    model_names = []
-#    pred_file_names = []
-#    for a,b,c,d,e in ([10, 10, 10, 10, 10],[30, 0, 0, 0, 0],[10,0,0,0,0],[0, 30, 30, 30, 30],[0, 10, 10, 10, 10]):
-#        model_names.append("/final_model_DKT_mask_22" + str(a) + "_25" + str(b) + "_29" + str(c) + "_31" + str(d) + "_71" + str(e) + ".hdf5")
-#        pred_file_names.append("AUC_skill_DKT_mask_22" + str(a) + "_25" + str(b) + "_29" + str(c) + "_31" + str(d) + "_71" + str(e) + ".txt")
-#    
-#    for m,p in zip(model_names,pred_file_names):
-#    
-#        model = load_model(data_path + m)
-#        print(model.summary())
+        model_names = []
+        pred_file_names = []
+        for a,b,c,d,e in ([10, 10, 10, 10, 10],[30, 0, 0, 0, 0],[10,0,0,0,0],[0, 30, 30, 30, 30],[0, 10, 10, 10, 10]):
+            model_names.append("/final_model_DKT_mask_22" + str(a) + "_25" + str(b) + "_29" + str(c) + "_31" + str(d) + "_71" + str(e) + ".hdf5")
+            pred_file_names.append("AUC_skill_DKT_mask_22" + str(a) + "_25" + str(b) + "_29" + str(c) + "_31" + str(d) + "_71" + str(e) + ".txt")
         
-        liste_auc = []
+        for m,p in zip(model_names,pred_file_names):
         
-        #Test global avec l'AUC (Area under de curve)
-        pred = model.predict(X_test)
-        temp = Y_test.astype(np.float)[:,:,:-1] * pred    
-        y_true = ((Y_test[:,:,-1]).astype(np.float)).ravel()
-        y_pred = (np.sum(temp, axis=2)).ravel()
-        print("AUC = ")
-        print(roc_auc_score(y_true.ravel(), y_pred.ravel()))
-        liste_auc.append("AUC = "+str(roc_auc_score(y_true.ravel(), y_pred.ravel())))
+            model = load_model(data_path + m)
+            print(model.summary())
         
-        #Test de chaque compétence en utilisant l'AUC
-        for id_skill in range(0,81):
-            zero = 0
-            mask4 = ((np.equal(temp[:,:,id_skill], zero)).astype(int)).ravel()
-            pred_skill = ma.array((temp[:,:,id_skill]).ravel(), mask=mask4)
-            reel_skill = ma.array(((Y_test[:,:,-1]).astype(np.float)).ravel(), mask=mask4)
-            pred_skill = pred_skill.compressed()
-            reel_skill = reel_skill.compressed()
-            print(pred_skill)
-            print(reel_skill)
-            print("AUC_"+str(id_skill)+" = ")
-            print(roc_auc_score(reel_skill.ravel(), pred_skill.ravel()))
-            liste_auc.append("AUC_"+str(id_skill)+" = "+str(roc_auc_score(reel_skill.ravel(), pred_skill.ravel())))
-        
-        
-        file_name = "AUC/" + "AUC_skill_DKT_mask_22" + str(a) + "_25" + str(b) + "_29" + str(c) + "_31" + str(d) + "_71" + str(e) + ".txt"
-        with open(file_name, "w") as file:
-            for line in liste_auc:
-                file.write(line)
-                
-        reset_keras()
+            liste_auc = []
+            
+            #Test global avec l'AUC (Area under de curve)
+            pred = m.predict(X_test)
+            temp = Y_test.astype(np.float)[:,:,:-1] * pred    
+            y_true = ((Y_test[:,:,-1]).astype(np.float)).ravel()
+            y_pred = (np.sum(temp, axis=2)).ravel()
+            print("AUC = ")
+            print(roc_auc_score(y_true.ravel(), y_pred.ravel()))
+            liste_auc.append("AUC = "+str(roc_auc_score(y_true.ravel(), y_pred.ravel())))
+            
+            #Test de chaque compétence en utilisant l'AUC
+            for id_skill in range(0,81):
+                zero = 0
+                mask4 = ((np.equal(temp[:,:,id_skill], zero)).astype(int)).ravel()
+                pred_skill = ma.array((temp[:,:,id_skill]).ravel(), mask=mask4)
+                reel_skill = ma.array(((Y_test[:,:,-1]).astype(np.float)).ravel(), mask=mask4)
+                pred_skill = pred_skill.compressed()
+                reel_skill = reel_skill.compressed()
+                print(pred_skill)
+                print(reel_skill)
+                print("AUC_"+str(id_skill)+" = ")
+                print(roc_auc_score(reel_skill.ravel(), pred_skill.ravel()))
+                liste_auc.append("AUC_"+str(id_skill)+" = "+str(roc_auc_score(reel_skill.ravel(), pred_skill.ravel())))
+            
+            
+            file_name = "AUC/" + "AUC_skill_DKT_mask_22" + str(a) + "_25" + str(b) + "_29" + str(c) + "_31" + str(d) + "_71" + str(e) + ".txt"
+            with open(file_name, "w") as file:
+                for line in liste_auc:
+                    file.write(line)
     
 

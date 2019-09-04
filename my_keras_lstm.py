@@ -90,7 +90,7 @@ def loss_function(y_true, y_pred):
 #     rep16 = y_true[:,:,-1] * y_true[:,:,16]
 #     rep61 = y_true[:,:,-1] * y_true[:,:,61]
 #     rep74 = y_true[:,:,-1] * y_true[:,:,74]
-     rep77 = y_true[:,:,-1] * y_true[:,:,25]
+     rep77 = y_true[:,:,-1] * y_true[:,:,77]
 
      zero = tf.constant(0, dtype=tf.float32)
      
